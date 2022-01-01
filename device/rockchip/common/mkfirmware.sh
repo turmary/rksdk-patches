@@ -46,6 +46,7 @@ OEM_FAKEROOT_SCRIPT=$ROCKDEV/oem.fs
 USERDATA_FAKEROOT_SCRIPT=$ROCKDEV/userdata.fs
 TRUST_IMG=$TOP_DIR/u-boot/trust.img
 UBOOT_IMG=$TOP_DIR/u-boot/uboot.img
+UBOOT_ITB=$TOP_DIR/u-boot/u-boot.itb
 BOOT_IMG=$TOP_DIR/kernel/$RK_BOOT_IMG
 LOADER=$TOP_DIR/u-boot/*_loader_v*.bin
 SPL=$TOP_DIR/u-boot/*_loader_spl.bin
@@ -263,6 +264,10 @@ then
         echo -n "create uboot.img..."
         ln -rsf $UBOOT_IMG $ROCKDEV/uboot.img
         echo "done."
+elif [ -f $UBOOT_ITB ]; then
+        echo -n "create uboot.itb..."
+        ln -rsf $UBOOT_ITB $ROCKDEV/uboot.img
+        echo "done."
 else
         echo -e "\e[31m error: $UBOOT_IMG not found! \e[0m"
 fi
@@ -292,6 +297,7 @@ then
         echo "done."
 else
         echo -e "\e[31m error: $TRUST_IMG not found! \e[0m"
+        rm -f $ROCKDEV/trust.img &> /dev/null || true
 fi
 fi
 
@@ -307,7 +313,7 @@ then
         echo "done."
 else
 	echo -e "\e[31m error: $LOADER not found,or there are multiple loaders! \e[0m"
-	rm $LOADER || true
+	rm $LOADER $ROCKDEV/MiniLoaderAll.bin &> /dev/null || true
 fi
 
 #if [ -f $SPINOR_LOADER ]
