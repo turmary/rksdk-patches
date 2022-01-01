@@ -1,0 +1,27 @@
+#!/bin/bash
+
+CMD=$(realpath $0)
+PTH_DIR=`dirname $CMD`
+SDK_VER=$(realpath --relative-to=. .repo/manifest.xml | sed -nr 's,^.*v([0-9].*)\.xml,\1,p')
+PRJS="device/rockchip buildroot tools kernel u-boot"
+FILTERS="device/rockchip/rockimg/wipe_all-misc.img"
+
+echo SDK Version: $SDK_VER
+echo Patches To : $PTH_DIR
+
+echo $SDK_VER > $PTH_DIR/sdk-version
+for prj in $PRJS; do
+	while true; do
+		read dummy fl || break
+		sp="$prj/$fl" # path releave to sdk base
+		[[ " $FILTERS " =~ .*\ $sp\ .* ]] && continue
+
+		tg="$PTH_DIR/$sp"
+		[ -d "$(dirname $tg)" ] || mkdir -p $(dirname $tg)
+		cp -f $sp $tg
+		echo "  $sp -> "
+	done < <(cd $prj; git status -s)
+done
+
+exit 0
+

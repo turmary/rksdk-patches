@@ -1,0 +1,29 @@
+#!/bin/bash
+
+CMD=$(realpath $0)
+PTH_DIR=`dirname $CMD`
+SDK_VER=$(realpath --relative-to=. .repo/manifest.xml | sed -nr 's,^.*v([0-9].*)\.xml,\1,p')
+PTH_VER=$(cat $PTH_DIR/sdk-version)
+PRJS="device/rockchip buildroot tools kernel u-boot"
+FILTERS="device/rockchip/rockimg/wipe_all-misc.img"
+
+echo SDK Version : $SDK_VER
+echo Patches from: $PTH_DIR
+echo Patch Ver   : $PTH_VER
+[ "$PTH_VER" != "$SDK_VER" ] && {
+	echo "Patches version not match with SDK verion, abort" > /dev/stderr
+	exit 1
+}
+
+PTH_DIR=$(realpath --relative-to=. $PTH_DIR)
+for prj in $PRJS; do
+	cp -rfv "$PTH_DIR/$prj/." "$prj"
+done
+
+[ -e mkrawimg.sh ] || ln -s tools/linux/Linux_Pack_Firmware/rockdev/mkrawimg.sh mkrawimg.sh
+
+# empty misc.img
+dd if=/dev/zero of=device/rockchip/rockimg/wipe_all-misc.img bs=1K count=48
+
+exit 0
+
