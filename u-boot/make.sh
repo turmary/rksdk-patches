@@ -127,10 +127,13 @@ function help()
 	echo "	./make.sh uboot                    --- pack uboot.img"
 	echo "	./make.sh trust                    --- pack trust.img"
 	echo "	./make.sh trust <ini>              --- pack trust img with assigned ini file"
-	echo "	./make.sh loader                   --- pack loader bin"
+	echo "	./make.sh loader                   --- pack loader bin (boot_merger)"
 	echo "	./make.sh loader <ini>             --- pack loader img with assigned ini file"
-	echo "	./make.sh spl                      --- pack loader with u-boot-spl.bin and u-boot-tpl.bin"
-	echo "	./make.sh spl-s                    --- pack loader only replace miniloader with u-boot-spl.bin"
+	echo "	./make.sh idbloader                --- pack loader bin (mkimage -T rksd)"
+	echo "	./make.sh spl*                     --- pack loader only replace miniloader with u-boot-spl.bin"
+	echo "	./make.sh tpl                      --- pack loader only replace DDR data   with u-boot-tpl.bin"
+	echo "	./make.sh tpl-spl                  --- pack loader with u-boot-spl.bin and u-boot-tpl.bin (boot_merger)"
+	echo "	./make.sh itbloader                --- pack loader with u-boot-spl.bin and u-boot-tpl.bin (mkimage -T rksd)"
 	echo "	./make.sh itb                      --- pack u-boot.itb(TODO: bl32 is not included for ARMv8)"
 	echo
 	echo "3. Debug:"
@@ -172,7 +175,7 @@ function process_args()
 				exit 0
 				;;
 
-			''|loader|trust|uboot|spl*|tpl*|debug*|itb|env|fit*)
+			''|loader|idbloader|itbloader|trust|uboot|spl*|tpl*|debug*|itb|env|fit*)
 				ARG_CMD=$1
 				shift 1
 				;;
@@ -354,6 +357,16 @@ function sub_commands()
 
 		tpl|spl)
 			pack_spl_loader_image ${ARG_CMD}
+			exit 0
+			;;
+
+		idbloader)
+			pack_idbloader_image ${ARG_CMD}
+			exit 0
+			;;
+
+		itbloader)
+			pack_itbloader_image ${ARG_CMD}
 			exit 0
 			;;
 
@@ -594,6 +607,7 @@ function pack_uboot_itb_image()
 	if [ "${ARM64_TRUSTZONE}" == "y" ]; then
 		bl31=`sed -n '/_bl31_/s/PATH=//p' ${ini} |tr -d '\r'`
 		cp ${RKBIN}/${bl31} bl31.elf
+		make --jobs=${JOB} CROSS_COMPILE=${TOOLCHAIN_GCC} u-boot-nodtb.bin
 		make CROSS_COMPILE=${TOOLCHAIN_GCC} u-boot.itb
 		echo "pack u-boot.itb okay! Input: ${ini}"
 	else
@@ -691,6 +705,9 @@ function pack_spl_loader_image()
 
 	# Pack
 	cd ${RKBIN}
+	echo -e "\n\n\n\n### ${tmpini}"
+	cat ${tmpini}
+	echo -e "### ###\n\n\n"
 	${RKTOOLS}/boot_merger ${tmpini}
 
 	rm ${tmpdir} -rf && cd -
@@ -735,6 +752,58 @@ function pack_loader_image()
 	file=`ls *loader*.bin`
 	echo "pack ${file} okay! Input: ${ini}"
 
+}
+
+function pack_idbloader_image()
+{
+	ini=${INI_LOADER}
+	if [ ! -f ${INI_LOADER} ]; then
+		echo "pack loader failed! Can't find: ${INI_LOADER}"
+		return
+	fi
+
+	IDBLDR=idbloader.img
+	FLASH_DATA=`sed -n '/FlashData=/s/FlashData=//p' ${ini}`
+	FLASH_BOOT=`sed -n '/FlashBoot=/s/FlashBoot=//p' ${ini}`
+	COMMON_H=`grep "_common.h:" include/autoconf.mk.dep | awk -F "/" '{ printf $3 }'`
+	# PLAT=`echo $RKCHIP | sed 's/[A-Z]/\l&/g'`
+	PLAT=${COMMON_H%_*}
+
+	rm -f $IDBLDR
+	cd ${RKBIN}
+	${RKTOOLS}/mkimage -T rksd -n $PLAT -d $FLASH_DATA:$FLASH_BOOT $IDBLDR
+	cd - &>/dev/null && mv ${RKBIN}/$IDBLDR ./
+
+	FL=`ls $IDBLDR`
+	echo "Input: ${ini}"
+	echo "     ${FLASH_DATA}"
+	echo "     ${FLASH_BOOT}"
+	echo
+	echo "Pack ${PLAT} ${FL} OK!"
+}
+
+function pack_itbloader_image()
+{
+	IDBLDR=idbloader.img
+	FLASH_DATA=tpl/u-boot-tpl.bin
+	FLASH_BOOT=spl/u-boot-spl.bin
+
+	make --jobs=${JOB} CROSS_COMPILE=${TOOLCHAIN_GCC} ${FLASH_DATA}
+	make --jobs=${JOB} CROSS_COMPILE=${TOOLCHAIN_GCC} ${FLASH_BOOT}
+
+	COMMON_H=`grep "_common.h:" include/autoconf.mk.dep | awk -F "/" '{ printf $3 }'`
+	# PLAT=`echo $RKCHIP | sed 's/[A-Z]/\l&/g'`
+	PLAT=${COMMON_H%_*}
+
+	rm -f $IDBLDR
+	${RKTOOLS}/mkimage -T rksd -n $PLAT -d $FLASH_DATA:$FLASH_BOOT $IDBLDR
+
+	FL=`ls $IDBLDR`
+	echo "Input:"
+	echo "     ${FLASH_DATA}"
+	echo "     ${FLASH_BOOT}"
+	echo
+	echo "Pack ${PLAT} ${FL} OK!"
 }
 
 function pack_arm32_trust_image()
@@ -857,7 +926,8 @@ select_ini_file
 handle_args_late
 sub_commands
 clean_files
-make CROSS_COMPILE=${TOOLCHAIN_GCC} all --jobs=${JOB}
+cmd="make CROSS_COMPILE=${TOOLCHAIN_GCC} all --jobs=${JOB}"
+echo "## $cmd"; eval $cmd
 pack_images
 finish
 
