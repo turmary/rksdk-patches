@@ -4,6 +4,7 @@
 #
 # SPDX-License-Identifier:	GPL-2.0
 #
+$(info ====== obj=$(obj))
 
 # Modified for U-Boot
 prefix := tpl
@@ -117,6 +118,7 @@ __build: $(if $(KBUILD_BUILTIN),$(builtin-target) $(lib-target) $(extra-y)) \
 	 $(if $(KBUILD_MODULES),$(obj-m) $(modorder-target)) \
 	 $(subdir-ym) $(always)
 	@:
+	$(shell echo ====== $(obj) depends $^ > /dev/stderr)
 
 # Linus' kernel sanity checking tool
 ifneq ($(KBUILD_CHECKSRC),0)
