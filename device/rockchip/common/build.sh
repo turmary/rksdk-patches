@@ -518,7 +518,8 @@ function build_spl(){
 	if [ -f u-boot/*spl.bin ]; then
 		rm u-boot/*spl.bin
 	fi
-	cd u-boot && ./make.sh $RK_SPL_DEFCONFIG && ./make.sh spl-s && cd -
+	cmd="(cd u-boot && ./make.sh $RK_SPL_DEFCONFIG && ./make.sh spl-s)"
+	echo "## $cmd"; eval $cmd
 	if [ $? -eq 0 ]; then
 		echo "====Build spl ok!===="
 	else
@@ -557,8 +558,10 @@ function build_kernel(){
 	echo "=========================================="
 	pwd
 	cd kernel
-	make ARCH=$RK_ARCH $RK_KERNEL_DEFCONFIG $RK_KERNEL_DEFCONFIG_FRAGMENT
-	make ARCH=$RK_ARCH $RK_KERNEL_DTS.img -j$RK_JOBS
+	cmd="make ARCH=$RK_ARCH $RK_KERNEL_DEFCONFIG $RK_KERNEL_DEFCONFIG_FRAGMENT"
+	echo "## $cmd"; eval $cmd
+	cmd="make ARCH=$RK_ARCH $RK_KERNEL_DTS.img -j$RK_JOBS"
+	echo "## $cmd"; eval $cmd
 	if [ -f "$TOP_DIR/device/rockchip/$RK_TARGET_PRODUCT/$RK_KERNEL_FIT_ITS" ]; then
 		$COMMON_DIR/mk-fitimage.sh $TOP_DIR/kernel/$RK_BOOT_IMG \
 			$TOP_DIR/device/rockchip/$RK_TARGET_PRODUCT/$RK_KERNEL_FIT_ITS \

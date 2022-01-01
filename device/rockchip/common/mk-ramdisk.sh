@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e -x
 COMMON_DIR=$(cd `dirname $0`; pwd)
 if [ -h $0 ]
 then
@@ -12,7 +13,7 @@ TOP_DIR=$(pwd)
 RAMDISK_IMG=$1
 RAMDISK_CFG=$2
 RAMDISK_TYPE=$RK_RAMBOOT_TYPE
-echo "config is $RAMDISK_CFG"
+echo "config is '$RAMDISK_CFG'"
 
 BOARD_CONFIG=$TOP_DIR/device/rockchip/.BoardConfig.mk
 source $BOARD_CONFIG
