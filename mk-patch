@@ -6,11 +6,34 @@ SDK_VER=$(realpath --relative-to=. .repo/manifest.xml | sed -nr 's,^.*v([0-9].*)
 PRJS="device/rockchip buildroot tools kernel u-boot"
 FILTERS="device/rockchip/rockimg/wipe_all-misc.img"
 
+function __usage() {
+	cat <<EOF
+Usage:
+  Backup all modification to the folder this script located.
+Syntax:
+  $0 [ -o ] [ -h ]
+    -o  backup original files, not the modified ones.
+    -h  show this help
+
+EOF
+	exit 1
+}
+
+original="false"
+while getopts "oh" opt; do
+	case "$opt" in
+	o)	original="true";;
+	h)	__usage;;
+	esac
+done
+
 echo SDK Version: $SDK_VER
 echo Patches To : $PTH_DIR
 
 echo $SDK_VER > $PTH_DIR/sdk-version
 for prj in $PRJS; do
+	files="$(cd $prj; git status -s)"
+	$original && (cd $prj; git stash save &> /dev/null)
 	while true; do
 		read dummy fl || break
 		sp="$prj/$fl" # path releave to sdk base
@@ -20,7 +43,8 @@ for prj in $PRJS; do
 		[ -d "$(dirname $tg)" ] || mkdir -p $(dirname $tg)
 		cp -f $sp $tg
 		echo "  $sp -> "
-	done < <(cd $prj; git status -s)
+	done < <(echo "$files")
+	$original && (cd $prj; git stash pop &> /dev/null)
 done
 
 exit 0
