@@ -84,7 +84,8 @@ cd $BUSYBOX_DIR
 # make distclean
 # make CC=$BASE_DIR/$UCLIBC_DIR/extra/gcc-uClibc/i386-uclibc-gcc
 # make CONFIG_PREFIX=$TARGET_DIR install
-make ARCH=$TGT_ARCH CROSS_COMPILE=$CROSS_COMPILE CONFIG_PREFIX=$TARGET_DIR install
+make ARCH=$TGT_ARCH CROSS_COMPILE=$CROSS_COMPILE CONFIG_PREFIX=$TARGET_DIR install | head
+echo "  ......"
 cd $BASE_DIR
 
 
