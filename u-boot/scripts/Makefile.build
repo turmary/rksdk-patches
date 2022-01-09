@@ -4,7 +4,6 @@
 #
 # SPDX-License-Identifier:	GPL-2.0
 #
-$(info ====== obj=$(obj))
 
 # Modified for U-Boot
 prefix := tpl
@@ -56,6 +55,7 @@ save-cflags := $(CFLAGS)
 
 # The filename Kbuild has precedence over Makefile
 kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+# $(info `    kbuild-dir=$(src))
 kbuild-file := $(if $(wildcard $(kbuild-dir)/Kbuild),$(kbuild-dir)/Kbuild,$(kbuild-dir)/Makefile)
 include $(kbuild-file)
 
@@ -118,7 +118,7 @@ __build: $(if $(KBUILD_BUILTIN),$(builtin-target) $(lib-target) $(extra-y)) \
 	 $(if $(KBUILD_MODULES),$(obj-m) $(modorder-target)) \
 	 $(subdir-ym) $(always)
 	@:
-	$(shell echo ====== $(obj) depends $^ > /dev/stderr)
+#	$(info ====== $(obj) depends $^)
 
 # Linus' kernel sanity checking tool
 ifneq ($(KBUILD_CHECKSRC),0)
