@@ -36,7 +36,7 @@ for prj in $PRJS; do
 	$original && (cd $prj; git stash save &> /dev/null)
 	while true; do
 		read dummy fl || break
-		sp="$prj/$fl" # path releave to sdk base
+		sp="$prj/$fl" # path relative to sdk base
 		[[ " $FILTERS " =~ .*\ $sp\ .* ]] && continue
 
 		tg="$PTH_DIR/$sp"
