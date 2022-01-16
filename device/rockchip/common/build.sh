@@ -386,7 +386,7 @@ function build_check_power_domain(){
 	rm -f $tmp_regulator_microvolt_file
 	rm -f $tmp_io_domain_file
 	rm -f $tmp_final_target
-	rm -f $dump_kernel_dtb_file
+	mv $dump_kernel_dtb_file "$(dirname $kernel_file_dtb_dts)/.$RK_KERNEL_DTS.dump.dts"
 }
 
 function build_check(){
@@ -567,6 +567,8 @@ function build_kernel(){
 			$TOP_DIR/device/rockchip/$RK_TARGET_PRODUCT/$RK_KERNEL_FIT_ITS \
 			$TOP_DIR/kernel/ramdisk.img
 	fi
+
+	build_check_power_domain
 
 	finish_build
 }
