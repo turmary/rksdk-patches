@@ -10,7 +10,7 @@
 # command-line settable variables
 BUSYBOX_DIR=..
 UCLIBC_DIR=../../uClibc
-TARGET_DIR=./loop
+TARGET_DIR=.loop #./loop
 FSSIZE=4000
 CLEANUP=1
 MKFS='mkfs.ext2 -F'
@@ -84,8 +84,14 @@ cd $BUSYBOX_DIR
 # make distclean
 # make CC=$BASE_DIR/$UCLIBC_DIR/extra/gcc-uClibc/i386-uclibc-gcc
 # make CONFIG_PREFIX=$TARGET_DIR install
-make ARCH=$TGT_ARCH CROSS_COMPILE=$CROSS_COMPILE CONFIG_PREFIX=$TARGET_DIR install | head
-echo "  ......"
+CMD="make ARCH=$TGT_ARCH CROSS_COMPILE=$CROSS_COMPILE CONFIG_PREFIX=$TARGET_DIR install"
+# [ "X$(expr substr $i 1 1)" = X/ ] && i=$(echo $i | cut -c2-)
+# echo $CMD; _RES="$($CMD)"; echo "$_RES" | head
+echo $CMD; $CMD | {
+	head
+	echo "  ......"
+	cat >/dev/null
+}
 cd $BASE_DIR
 
 
