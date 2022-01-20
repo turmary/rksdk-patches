@@ -2,7 +2,7 @@
 
   This project will backup all patched files in RK(Firefly) SDK
 
-# Backup/Make patch
+# Backup/Make Patch
 
   ```bash
   cd <path-to-sdk>

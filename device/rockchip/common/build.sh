@@ -95,6 +95,7 @@ function build_select_board()
 		ln -sf $MKUPDATE_FILE mkupdate.sh
 	fi
 
+	cd $TOP_DIR
 	echo "switching to board: `realpath $BOARD_CONFIG`"
 }
 
@@ -116,10 +117,11 @@ TARGET_PRODUCT="$TOP_DIR/device/rockchip/.target_product"
 TARGET_PRODUCT_DIR=$(realpath ${TARGET_PRODUCT})
 
 unset_board_config_all
+ROCKDEV=$TOP_DIR/rockdev
+[ -L "$BOARD_CONFIG" ] || build_select_board
 [ -L "$BOARD_CONFIG" ] && source $BOARD_CONFIG
 source $TOP_DIR/device/rockchip/common/Version.mk
 CFG_DIR=$TOP_DIR/device/rockchip
-ROCKDEV=$TOP_DIR/rockdev
 PARAMETER=$TOP_DIR/device/rockchip/$RK_TARGET_PRODUCT/$RK_PARAMETER
 SD_PARAMETER=$TOP_DIR/device/rockchip/$RK_TARGET_PRODUCT/$RK_SD_PARAMETER
 
@@ -314,7 +316,8 @@ function build_info(){
 	rm -f $kernel_file_dtb
 
 	cd kernel
-	make ARCH=$RK_ARCH dtbs -j$RK_JOBS
+	kernel_file_dtb=$(realpath --relative-to="arch/$RK_ARCH/boot/dts" $kernel_file_dtb)
+	make ARCH=$RK_ARCH $kernel_file_dtb -j$RK_JOBS
 }
 
 function build_check_power_domain(){
