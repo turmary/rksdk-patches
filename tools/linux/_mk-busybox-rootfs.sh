@@ -5,7 +5,7 @@
 
 # TODO: need to add checks here to verify that busybox, uClibc and bzImage
 # exist
-
+set -o errexit
 
 # command-line settable variables
 BUSYBOX_DIR=..
@@ -49,8 +49,8 @@ export verbose=y
 source /usr/share/initramfs-tools/hook-functions
 
 # clean up from any previous work
-mount | grep -q loop
-[ $? -eq 0 ] && umount $TARGET_DIR
+mount | grep -q loop && umount $TARGET_DIR
+# [ $? -eq 0 ] && umount $TARGET_DIR
 [ -d $TARGET_DIR ] && rm -rf $TARGET_DIR/
 [ -f $RTFS ] && rm -f $RTFS
 [ -f rootfs.gz ] && rm -f rootfs.gz

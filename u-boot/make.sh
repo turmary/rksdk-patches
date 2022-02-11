@@ -579,7 +579,7 @@ function pack_uboot_image()
 		uboot_max_kb=$(((uboot_max_kb-head_kb)*1024))
 	fi
 
-	if [ ${uboot_kb} -gt ${uboot_max_kb} ]; then
+	if [ "${uboot_kb}" -gt ${uboot_max_kb} ]; then
 		echo
 		echo "ERROR: pack uboot failed! u-boot.bin actual: ${uboot_kb} bytes, max limit: ${uboot_max_kb} bytes"
 		exit 1

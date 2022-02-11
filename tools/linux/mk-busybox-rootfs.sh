@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o errexit
+
 ROOTFS_DIR="ubuntu_rootfs"
 TGT_IMG_NAME="rk3399_ubuntu_rootfs.img"
 BUSYBOX_VER="1.27.2"
@@ -63,7 +65,7 @@ function aarch64_rt_install() {
 _CMD=`realpath $0`
 TOOLS_DIR=`dirname $_CMD`
 # acquire root urgently
-sueo ls &> /dev/null
+sudo ls &> /dev/null
 
 
 [ "$EUID" -eq 0 ] && {
@@ -122,6 +124,11 @@ done
 
 sysroot=$(dirname $(realpath -s `${CROSS_COMPILE}gcc -print-prog-name=ld`))
 sysroot=${sysroot%%/bin}
+
+[ -f "${sysroot}/lib/ld-linux-aarch64.so.1" ] || {
+	sysroot=$(aarch64-linux-gnu-gcc -print-file-name=ld-linux-aarch64.so.1)
+	sysroot=$(realpath ${sysroot%/lib/ld-linux-aarch64.so.1})
+}
 
 cmd="sudo -E $TOOLS_DIR/_mk-busybox-rootfs.sh -b $BUSYBOX_SRC -u $sysroot"
 echo $cmd; $cmd
