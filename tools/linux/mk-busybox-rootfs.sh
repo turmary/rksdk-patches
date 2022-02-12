@@ -18,7 +18,7 @@ _apt_updated=false
 function apt_install() {
 	local pkg=$1 status _pkg
 
-	status=$(dpkg -l $pkg | tail -1)
+	status=$(dpkg -l "$pkg" | tail -1)
 	_pkg=$(  echo "$status" | awk '{ printf "%s", $2; }')
 	status=$(echo "$status" | awk '{ printf "%s", $1; }')
 	# echo $status $_pkg $pkg
@@ -33,7 +33,7 @@ function apt_install() {
 		apt-get -y update
 		_apt_updated=true
 	fi
-	apt-get -y install $pkg
+	apt-get -y install "$pkg"
 	return 0
 }
 
@@ -48,12 +48,13 @@ function aarch64_rt_install() {
 	for _lnk in \
 		"ld-linux-aarch64.so.1" "libm.so.6" "libc.so.6" \
 	; do
-		_tgt=$(realpath $($AARCH64_GCC -print-file-name=$_lnk))
+		_tgt=$(realpath "$($AARCH64_GCC -print-file-name=$_lnk)")
 		# echo $_tgt
+		# shellcheck disable=SC2015
 		[ -e $_t_root/lib/$_lnk ] && {
 			echo "$_t_root/lib/$_lnk already installed"
 		} || {
-			ln -s $_tgt $_t_root/lib/$_lnk
+			ln -s "$_tgt" "$_t_root/lib/$_lnk"
 			echo "$_t_root/lib/$_lnk installed"
 		}
 	done
@@ -62,8 +63,8 @@ function aarch64_rt_install() {
 
 
 # echo "BASH_SOURCE=${BASH_SOURCE}"
-_CMD=`realpath $0`
-TOOLS_DIR=`dirname $_CMD`
+_CMD=$(realpath "$0")
+TOOLS_DIR=$(dirname "$_CMD")
 # acquire root urgently
 sudo ls &> /dev/null
 
@@ -99,12 +100,12 @@ echo "###### Busybox source ready in $BUSYBOX_SRC/: ######"
 [ -f "$BUSYBOX_SRC/.config" ] || {
 	cp $BUSYBOX_CFG $BUSYBOX_SRC/.config
 	cmd="make -C $BUSYBOX_SRC ARCH=$TGT_ARCH CROSS_COMPILE=$CROSS_COMPILE defconfig"
-	echo $cmd; $cmd
+	echo "$cmd"; $cmd
 }
 
 echo "CROSS_COMPILE=$CROSS_COMPILE"
 cmd="make -j -C $BUSYBOX_SRC ARCH=$TGT_ARCH CROSS_COMPILE=$CROSS_COMPILE"
-echo $cmd; $cmd
+echo "$cmd"; $cmd
 
 
 DESTDIR="$(mktemp -d "${TMPDIR:-/var/tmp}/mkinitramfs_XXXXXX")" || exit 1
@@ -122,21 +123,23 @@ for d in conf/conf.d etc run scripts ${MODULESDIR}; do
 	mkdir -p "${DESTDIR}/${d}"
 done
 
-sysroot=$(dirname $(realpath -s `${CROSS_COMPILE}gcc -print-prog-name=ld`))
+# shellcheck disable=SC2046
+sysroot=$(dirname $(realpath -s "$(${CROSS_COMPILE}gcc -print-prog-name=ld)"))
 sysroot=${sysroot%%/bin}
 
 [ -f "${sysroot}/lib/ld-linux-aarch64.so.1" ] || {
 	sysroot=$(aarch64-linux-gnu-gcc -print-file-name=ld-linux-aarch64.so.1)
-	sysroot=$(realpath ${sysroot%/lib/ld-linux-aarch64.so.1})
+	sysroot=$(realpath "${sysroot%/lib/ld-linux-aarch64.so.1}")
 }
 
-cmd="sudo -E $TOOLS_DIR/_mk-busybox-rootfs.sh -b $BUSYBOX_SRC -u $sysroot"
-echo $cmd; $cmd
+cmd="sudo -E $TOOLS_DIR/_mk-busybox-rootfs.sh -b $BUSYBOX_SRC -u $sysroot -s 30720"
+echo "$cmd"; $cmd
 
 [ -s rootfs.gz ] && {
 	gunzip -ck rootfs.gz > "$ROOTFS_DIR/$TGT_IMG_NAME"
 }
 
+# shellcheck disable=SC2015
 [ -s "$ROOTFS_DIR/$TGT_IMG_NAME" ] && {
 	echo -e "\e[32m==== Make $ROOTFS_DIR/$TGT_IMG_NAME OK ===="
 	echo -e "$(ls -l --color $ROOTFS_DIR/$TGT_IMG_NAME)"
