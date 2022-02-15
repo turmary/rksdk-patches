@@ -123,6 +123,9 @@ copy_file library "lib/libm.so.6"
 copy_file library "lib/ld-linux-aarch64.so.1"
 # cp -a crypt/libcrypt.so* $TARGET_DIR/lib
 copy_file library "lib/libcrypt.so.1" "/lib"
+copy_file library "lib/libnss_files.so.2"
+copy_file library "lib/libnss_dns.so.2"
+copy_file library "lib/libresolv.so.2"
 cd "$BASE_DIR"
 
 
