@@ -74,6 +74,7 @@ sudo ls &> /dev/null
 	apt_install qemu-user-static
 	apt_install gcc-aarch64-linux-gnu
 	apt_install initramfs-tools-core
+	apt_install udhcpc
 	aarch64_rt_install
 	exit 1
 }

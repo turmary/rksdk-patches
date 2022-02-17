@@ -155,6 +155,10 @@ cd "$BUSYBOX_DIR/examples/bootfloppy"
 cp -a etc "$TARGET_DIR"
 ln -s /proc/mounts "$TARGET_DIR/etc/mtab"
 
+# set interface address automatically during udhcpcing
+mkdir -p "$TARGET_DIR/usr/share/udhcpc"
+cp -a /etc/udhcpc/default.script "$TARGET_DIR/usr/share/udhcpc"
+
 cd "$BASE_DIR"
 
 # other miscellaneous setup
