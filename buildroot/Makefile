@@ -759,7 +759,6 @@ endif
 		echo "RK_MODEL=$(RK_MODEL)"; \
 		echo "RK_VERSION=$(RK_VERSION)"; \
 		echo "RK_OTA_HOST=$(RK_OTA_HOST)"; \
-		echo "XML_NAME=$(notdir $(realpath ../.repo/manifest.xml))"; \
 	) >  $(TARGET_DIR)/etc/version
 
 	@$(call MESSAGE,"Sanitizing RPATH in target tree")
