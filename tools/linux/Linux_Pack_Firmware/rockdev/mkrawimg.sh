@@ -79,7 +79,7 @@ if [ "$RK_IDBLOCK_UPDATE" = "true" ]; then
 	echo -e "\e[33mLOADER1 Image/idblock.bin ${LOADER1_START}\e[0m"
 	dd if=Image/idblock.bin of=${RAWIMG} seek=${LOADER1_START} conv=notrunc
 else
-	echo -e "\e[33mLOADER1 Image/idbloder.img ${LOADER1_START}\e[0m"
+	echo -e "\e[33mLOADER1 Image/idbloader.img ${LOADER1_START}\e[0m"
 	dd if=Image/idbloader.img of=${RAWIMG} seek=${LOADER1_START} conv=notrunc
 fi
 

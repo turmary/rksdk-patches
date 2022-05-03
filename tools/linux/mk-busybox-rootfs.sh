@@ -124,7 +124,7 @@ for d in conf/conf.d etc run scripts ${MODULESDIR}; do
 	mkdir -p "${DESTDIR}/${d}"
 done
 
-# shellcheck disable=SC2046
+# shellcheck disable=SC2046,SC2086
 sysroot=$(dirname $(realpath -s "$(${CROSS_COMPILE}gcc -print-prog-name=ld)"))
 sysroot=${sysroot%%/bin}
 
