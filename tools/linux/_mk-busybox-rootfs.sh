@@ -5,7 +5,7 @@
 
 # TODO: need to add checks here to verify that busybox, uClibc and bzImage
 # exist
-set -o errexit
+# set -o errexit
 
 # command-line settable variables
 BUSYBOX_DIR=..
@@ -171,6 +171,7 @@ mkdir "$TARGET_DIR/sys"
 # Done. Maybe do cleanup.
 if [ $CLEANUP -eq 1 ]
 then
+	echo "CLEANUP NOW ..."
 	umount "$TARGET_DIR"
 	rmdir  "$TARGET_DIR"
 	gzip -c9 $RTFS > rootfs.gz

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -o errexit
+# set -o errexit
 
 ROOTFS_DIR="ubuntu_rootfs"
 TGT_IMG_NAME="rk3399_ubuntu_rootfs.img"
@@ -25,7 +25,7 @@ function apt_install() {
 
 	if [ "X$status" == "Xii" -a "X$_pkg" == "X$pkg" ]; then
 		echo "debian package $pkg already installed"
-		return 1
+		return 0
 	fi
 
 	# install the debian package
@@ -133,7 +133,7 @@ sysroot=${sysroot%%/bin}
 	sysroot=$(realpath "${sysroot%/lib/ld-linux-aarch64.so.1}")
 }
 
-cmd="sudo -E $TOOLS_DIR/_mk-busybox-rootfs.sh -b $BUSYBOX_SRC -u $sysroot -s 30720"
+cmd="sudo -E PATH=$PATH $TOOLS_DIR/_mk-busybox-rootfs.sh -b $BUSYBOX_SRC -u $sysroot -s 30720"
 echo "$cmd"; $cmd
 
 [ -s rootfs.gz ] && {
