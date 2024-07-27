@@ -7,8 +7,8 @@ source $CUR_DIR/BoardConfig.mk
 
 # Uboot defconfig
 export RK_UBOOT_DEFCONFIG=firefly-rk3399
-export RK_SPL_DEFCONFIG=firefly-rk3399
-
+# Eneble security otp debug
+export RK_SECURITY_OTP_DEBUG=true
 # Kernel defconfig
 export RK_KERNEL_DEFCONFIG=firefly_linux_defconfig
 # Kernel dts
@@ -17,6 +17,8 @@ export RK_KERNEL_DTS=rk3399-firefly
 export RK_PARAMETER=parameter-ubuntu.txt
 # packagefile for make update image
 export RK_PACKAGE_FILE=rk3399-ubuntu-package-file
+# Set extboot
+export FF_EXTBOOT=true
 
 # Set rootfs type, including ext2 ext4 squashfs
 export RK_ROOTFS_TYPE=ext4
@@ -24,6 +26,8 @@ export RK_ROOTFS_TYPE=ext4
 export RK_ROOTFS_IMG=ubuntu_rootfs/rk3399_ubuntu_rootfs.img
 # recovery ramdisk
 export RK_RECOVERY_RAMDISK=recovery-arm64.cpio.gz
+# recovery ramdisk raw
+export RK_RECOVERY_RAMDISK_RAW=recovery-arm64-raw.cpio.gz
 # Set userdata partition type
 export RK_USERDATA_FS_TYPE=ext4
 
